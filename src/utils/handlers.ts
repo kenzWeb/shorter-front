@@ -16,17 +16,44 @@ export const useCopyHandler = () => {
 	return {copySuccess, handleCopy}
 }
 
-export const useDeleteHandler = () => {
+export const useDeleteHandler = (
+	showConfirm?: (options: {
+		title?: string
+		message: string
+		confirmText?: string
+		cancelText?: string
+		variant?: 'danger' | 'warning' | 'info'
+	}) => Promise<boolean>,
+) => {
 	const [deleteLoading, setDeleteLoading] = useState<string | null>(null)
 
 	const handleDelete = async (
 		identifier: string,
 		deleteFn: (id: string) => Promise<void>,
-		confirmMessage?: string,
+		options?: {
+			title?: string
+			message?: string
+			confirmText?: string
+			cancelText?: string
+			variant?: 'danger' | 'warning' | 'info'
+		},
 	) => {
-		const message =
-			confirmMessage || 'Вы уверены, что хотите удалить этот элемент?'
-		if (!confirm(message)) return false
+		if (showConfirm) {
+			const confirmed = await showConfirm({
+				title: options?.title || 'Удаление ссылки',
+				message:
+					options?.message ||
+					'Вы уверены, что хотите удалить эту ссылку? Это действие нельзя отменить.',
+				confirmText: options?.confirmText || 'Удалить',
+				cancelText: options?.cancelText || 'Отмена',
+				variant: options?.variant || 'danger',
+			})
+			if (!confirmed) return false
+		} else {
+			const message =
+				options?.message || 'Вы уверены, что хотите удалить этот элемент?'
+			if (!confirm(message)) return false
+		}
 
 		setDeleteLoading(identifier)
 		try {

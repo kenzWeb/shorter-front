@@ -28,7 +28,7 @@ export const UrlList = ({
 	const onDeleteClick = (shortCode: string) => {
 		handleDelete(shortCode, onDelete, {
 			title: 'Удаление ссылки',
-			message: `Вы уверены, что хотите удалить эту ссылку? Это действие нельзя отменить.`,
+			message: `Вы действительно хотите удалить эту ссылку? Отменить это действие будет невозможно.`,
 			confirmText: 'Удалить',
 			cancelText: 'Отмена',
 			variant: 'danger',
