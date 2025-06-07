@@ -1,8 +1,6 @@
-import {useEffect, useState} from 'react'
+import {useState} from 'react'
 import {useKeyboardHandler, useModalBodyClass} from '../hooks/common'
-import {useStats} from '../hooks/useStats'
-import type {Analytics} from '../types/analytics'
-import type {DetailedStats} from '../types/stats'
+import {useStatsModal} from '../hooks/useEffects'
 import {truncateUserAgent} from '../utils/analytics'
 import {formatDate} from '../utils/dateFormat'
 import {LoadingState} from './common/LoadingState'
@@ -13,26 +11,10 @@ interface StatsModalProps {
 }
 
 export const StatsModal = ({shortCode, onClose}: StatsModalProps) => {
-	const {loading, error, getDetailedStats, getAnalytics} = useStats()
-	const [detailedStats, setDetailedStats] = useState<DetailedStats | null>(null)
-	const [analytics, setAnalytics] = useState<Analytics | null>(null)
+	const {loading, error, detailedStats, analytics} = useStatsModal(shortCode)
 	const [activeTab, setActiveTab] = useState<'detailed' | 'analytics'>(
 		'detailed',
 	)
-
-	useEffect(() => {
-		const loadStats = async () => {
-			const [detailedData, analyticsData] = await Promise.all([
-				getDetailedStats(shortCode),
-				getAnalytics(shortCode),
-			])
-
-			if (detailedData) setDetailedStats(detailedData)
-			if (analyticsData) setAnalytics(analyticsData)
-		}
-
-		loadStats()
-	}, [shortCode, getDetailedStats, getAnalytics])
 
 	useKeyboardHandler('Escape', onClose)
 	useModalBodyClass(true)

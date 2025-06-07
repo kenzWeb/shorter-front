@@ -1,22 +1,10 @@
-import {useEffect, useState} from 'react'
-import {useStats} from '../hooks/useStats'
-import type {SummaryAnalytics} from '../types/analytics'
+import {useSummaryAnalytics} from '../hooks/useEffects'
 import {calculateAnalyticsTotals, truncateUrl} from '../utils/analytics'
 import {formatDate} from '../utils/dateFormat'
 import {EmptyState, LoadingState} from './common/LoadingState'
 
 export const SummaryAnalyticsView = () => {
-	const {loading, error, getSummaryAnalytics} = useStats()
-	const [summaryData, setSummaryData] = useState<SummaryAnalytics[]>([])
-
-	useEffect(() => {
-		const loadSummary = async () => {
-			const data = await getSummaryAnalytics()
-			setSummaryData(data)
-		}
-
-		loadSummary()
-	}, [getSummaryAnalytics])
+	const {loading, error, summaryData} = useSummaryAnalytics()
 
 	const totals = calculateAnalyticsTotals(summaryData)
 

@@ -1,7 +1,7 @@
-import {useState} from 'react'
+import React from 'react'
 import type {CreateUrlRequest} from '../types/api'
 import type {UrlData} from '../types/url'
-import {hasErrors, validateForm as validateFormData} from '../utils/forms'
+import {useFormValidation} from '../hooks/useForm'
 import {isValidAlias, isValidUrl} from '../utils/validation'
 
 interface UrlFormProps {
@@ -10,58 +10,55 @@ interface UrlFormProps {
 }
 
 export const UrlForm = ({onSubmit, loading}: UrlFormProps) => {
-	const [originalUrl, setOriginalUrl] = useState('')
-	const [alias, setAlias] = useState('')
-	const [expiresAt, setExpiresAt] = useState('')
-	const [errors, setErrors] = useState<Record<string, string>>({})
-
-	const validateForm = (): boolean => {
-		const formData = {originalUrl, alias, expiresAt}
-		const validators = {
-			originalUrl: (value: string) => {
-				if (!value.trim()) return 'URL обязателен для заполнения'
-				if (!isValidUrl(value)) return 'Некорректный URL'
-				return null
-			},
-			alias: (value: string) => {
-				if (value && !isValidAlias(value)) {
-					return 'Алиас может содержать только буквы, цифры, дефисы и подчеркивания (макс. 20 символов)'
+	const validators = {
+		originalUrl: (value: string) => {
+			if (!value.trim()) return 'URL обязателен для заполнения'
+			if (!isValidUrl(value)) return 'Некорректный URL'
+			return null
+		},
+		alias: (value: string) => {
+			if (value && !isValidAlias(value)) {
+				return 'Алиас может содержать только буквы, цифры, дефисы и подчеркивания (макс. 20 символов)'
+			}
+			return null
+		},
+		expiresAt: (value: string) => {
+			if (value) {
+				const date = new Date(value)
+				if (date <= new Date()) {
+					return 'Дата истечения должна быть в будущем'
 				}
-				return null
-			},
-			expiresAt: (value: string) => {
-				if (value) {
-					const expirationDate = new Date(value)
-					if (expirationDate <= new Date()) {
-						return 'Дата истечения должна быть в будущем'
-					}
-				}
-				return null
-			},
+			}
+			return null
 		}
-
-		const newErrors = validateFormData(formData, validators)
-		setErrors(newErrors)
-		return !hasErrors(newErrors)
 	}
+
+	const {
+		values,
+		errors,
+		setValue,
+		setFieldTouched,
+		validateAll,
+		resetForm
+	} = useFormValidation(
+		{ originalUrl: '', alias: '', expiresAt: '' },
+		validators
+	)
 
 	const handleSubmit = async (e: React.FormEvent) => {
 		e.preventDefault()
 
-		if (!validateForm()) return
+		if (!validateAll()) return
 
 		const data: CreateUrlRequest = {
-			originalUrl: originalUrl.trim(),
-			...(alias.trim() && {alias: alias.trim()}),
-			...(expiresAt && {expiresAt: new Date(expiresAt).toISOString()}),
+			originalUrl: values.originalUrl.trim(),
+			...(values.alias.trim() && {alias: values.alias.trim()}),
+			...(values.expiresAt && {expiresAt: new Date(values.expiresAt).toISOString()}),
 		}
 
 		try {
 			await onSubmit(data)
-			setOriginalUrl('')
-			setAlias('')
-			setExpiresAt('')
-			setErrors({})
+			resetForm()
 		} catch (error) {
 			console.error('Ошибка при создании ссылки:', error)
 		}
@@ -74,8 +71,9 @@ export const UrlForm = ({onSubmit, loading}: UrlFormProps) => {
 				<input
 					id='originalUrl'
 					type='url'
-					value={originalUrl}
-					onChange={(e) => setOriginalUrl(e.target.value)}
+					value={values.originalUrl}
+					onChange={(e) => setValue('originalUrl', e.target.value)}
+					onBlur={() => setFieldTouched('originalUrl')}
 					placeholder='https://example.com'
 					className={errors.originalUrl ? 'error' : ''}
 					disabled={loading}
@@ -90,8 +88,9 @@ export const UrlForm = ({onSubmit, loading}: UrlFormProps) => {
 				<input
 					id='alias'
 					type='text'
-					value={alias}
-					onChange={(e) => setAlias(e.target.value)}
+					value={values.alias}
+					onChange={(e) => setValue('alias', e.target.value)}
+					onBlur={() => setFieldTouched('alias')}
 					placeholder='my-custom-alias'
 					maxLength={20}
 					className={errors.alias ? 'error' : ''}
@@ -105,8 +104,9 @@ export const UrlForm = ({onSubmit, loading}: UrlFormProps) => {
 				<input
 					id='expiresAt'
 					type='datetime-local'
-					value={expiresAt}
-					onChange={(e) => setExpiresAt(e.target.value)}
+					value={values.expiresAt}
+					onChange={(e) => setValue('expiresAt', e.target.value)}
+					onBlur={() => setFieldTouched('expiresAt')}
 					className={errors.expiresAt ? 'error' : ''}
 					disabled={loading}
 				/>
