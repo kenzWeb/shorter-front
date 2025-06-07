@@ -1,6 +1,6 @@
 import {useEffect, useState} from 'react'
 import {useStats} from '../hooks/useStats'
-import type {SummaryAnalytics} from '../types'
+import type {SummaryAnalytics} from '../types/analytics'
 import {formatDate} from '../utils/helpers'
 
 export const SummaryAnalyticsView = () => {

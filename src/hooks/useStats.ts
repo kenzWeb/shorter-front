@@ -1,11 +1,8 @@
 import {useCallback, useState} from 'react'
 import {urlService} from '../services/api'
-import type {
-	Analytics,
-	DetailedStats,
-	SummaryAnalytics,
-	UrlInfo,
-} from '../types'
+import type {Analytics, SummaryAnalytics} from '../types/analytics'
+import type {DetailedStats} from '../types/stats'
+import type {UrlInfo} from '../types/url'
 
 export const useStats = () => {
 	const [loading, setLoading] = useState(false)

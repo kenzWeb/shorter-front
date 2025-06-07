@@ -1,6 +1,7 @@
 import {useEffect, useState} from 'react'
 import {urlService} from '../services/api'
-import type {CreateUrlRequest, UrlData} from '../types'
+import type {CreateUrlRequest} from '../types/api'
+import type {UrlData} from '../types/url'
 
 export const useUrls = () => {
 	const [urls, setUrls] = useState<UrlData[]>([])

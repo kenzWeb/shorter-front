@@ -1,13 +1,8 @@
 import axios from 'axios'
-import type {
-	Analytics,
-	ApiResponse,
-	CreateUrlRequest,
-	DetailedStats,
-	SummaryAnalytics,
-	UrlData,
-	UrlInfo,
-} from '../types'
+import type {Analytics, SummaryAnalytics} from '../types/analytics'
+import type {ApiResponse, CreateUrlRequest} from '../types/api'
+import type {DetailedStats} from '../types/stats'
+import type {UrlData, UrlInfo} from '../types/url'
 
 const BASE_URL = 'http://localhost:3000'
 

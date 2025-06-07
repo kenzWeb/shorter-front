@@ -1,5 +1,6 @@
 import {useState} from 'react'
-import type {CreateUrlRequest, UrlData} from '../types'
+import type {CreateUrlRequest} from '../types/api'
+import type {UrlData} from '../types/url'
 import {isValidAlias, isValidUrl} from '../utils/helpers'
 
 interface UrlFormProps {
