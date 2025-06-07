@@ -33,3 +33,60 @@ export const LoadingState = ({
 export const EmptyState = ({message}: {message: string}) => (
 	<div className='empty-state'>{message}</div>
 )
+
+// Специализированные компоненты состояний
+export const UrlsLoadingState = ({
+	loading,
+	children,
+}: {
+	loading: boolean
+	children: ReactNode
+}) => (
+	<LoadingState loading={loading} error={null} loadingText='Загрузка ссылок...'>
+		{children}
+	</LoadingState>
+)
+
+export const StatsLoadingState = ({
+	loading,
+	error,
+	children,
+}: {
+	loading: boolean
+	error: string | null
+	children: ReactNode
+}) => (
+	<LoadingState
+		loading={loading}
+		error={error}
+		loadingText='Загрузка статистики...'
+	>
+		{children}
+	</LoadingState>
+)
+
+export const AnalyticsLoadingState = ({
+	loading,
+	error,
+	children,
+}: {
+	loading: boolean
+	error: string | null
+	children: ReactNode
+}) => (
+	<LoadingState
+		loading={loading}
+		error={error}
+		loadingText='Загрузка аналитики...'
+	>
+		{children}
+	</LoadingState>
+)
+
+export const UrlsEmptyState = () => (
+	<EmptyState message='Пока нет созданных ссылок' />
+)
+
+export const AnalyticsEmptyState = () => (
+	<EmptyState message='Нет данных для аналитики' />
+)

@@ -1,7 +1,7 @@
 import {useSummaryAnalytics} from '../hooks/useEffects'
 import {calculateAnalyticsTotals, truncateUrl} from '../utils/analytics'
 import {formatDate} from '../utils/dateFormat'
-import {EmptyState, LoadingState} from './common/LoadingState'
+import {AnalyticsEmptyState, AnalyticsLoadingState} from './common/LoadingState'
 
 export const SummaryAnalyticsView = () => {
 	const {loading, error, summaryData} = useSummaryAnalytics()
@@ -9,13 +9,9 @@ export const SummaryAnalyticsView = () => {
 	const totals = calculateAnalyticsTotals(summaryData)
 
 	return (
-		<LoadingState
-			loading={loading}
-			error={error}
-			loadingText='Загрузка аналитики...'
-		>
+		<AnalyticsLoadingState loading={loading} error={error}>
 			{summaryData.length === 0 ? (
-				<EmptyState message='Нет данных для аналитики' />
+				<AnalyticsEmptyState />
 			) : (
 				<div className='summary-analytics'>
 					<h2>Общая аналитика</h2>
@@ -64,6 +60,6 @@ export const SummaryAnalyticsView = () => {
 					</div>
 				</div>
 			)}
-		</LoadingState>
+		</AnalyticsLoadingState>
 	)
 }

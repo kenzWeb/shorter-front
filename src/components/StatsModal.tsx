@@ -3,7 +3,7 @@ import {useKeyboardHandler, useModalBodyClass} from '../hooks/common'
 import {useStatsModal} from '../hooks/useEffects'
 import {truncateUserAgent} from '../utils/analytics'
 import {formatDate} from '../utils/dateFormat'
-import {LoadingState} from './common/LoadingState'
+import {StatsLoadingState} from './common/LoadingState'
 
 interface StatsModalProps {
 	shortCode: string
@@ -44,11 +44,7 @@ export const StatsModal = ({shortCode, onClose}: StatsModalProps) => {
 					</button>
 				</div>
 
-				<LoadingState
-					loading={loading}
-					error={error}
-					loadingText='Загрузка статистики...'
-				>
+				<StatsLoadingState loading={loading} error={error}>
 					{activeTab === 'detailed' && detailedStats ? (
 						<div className='detailed-stats'>
 							<div className='stats-summary'>
@@ -118,7 +114,7 @@ export const StatsModal = ({shortCode, onClose}: StatsModalProps) => {
 							</div>
 						</div>
 					) : null}
-				</LoadingState>
+				</StatsLoadingState>
 			</div>
 		</div>
 	)
