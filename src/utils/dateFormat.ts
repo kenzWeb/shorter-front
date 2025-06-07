@@ -21,24 +21,15 @@ export const formatRelativeTime = (dateString: string): string => {
 	}
 }
 
-export const isValidUrl = (url: string): boolean => {
-	try {
-		new URL(url)
-		return true
-	} catch {
-		return false
-	}
+export const formatDateShort = (dateString: string): string => {
+	const date = new Date(dateString)
+	return date.toLocaleDateString('ru-RU')
 }
 
-export const isValidAlias = (alias: string): boolean => {
-	return alias.length <= 20 && /^[a-zA-Z0-9-_]+$/.test(alias)
-}
-
-export const copyToClipboard = async (text: string): Promise<boolean> => {
-	try {
-		await navigator.clipboard.writeText(text)
-		return true
-	} catch {
-		return false
-	}
+export const formatTimeOnly = (dateString: string): string => {
+	const date = new Date(dateString)
+	return date.toLocaleTimeString('ru-RU', {
+		hour: '2-digit',
+		minute: '2-digit',
+	})
 }

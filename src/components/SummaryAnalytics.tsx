@@ -1,7 +1,7 @@
 import {useEffect, useState} from 'react'
 import {useStats} from '../hooks/useStats'
 import type {SummaryAnalytics} from '../types/analytics'
-import {formatDate} from '../utils/helpers'
+import {formatDate} from '../utils/dateFormat'
 
 export const SummaryAnalyticsView = () => {
 	const {loading, error, getSummaryAnalytics} = useStats()

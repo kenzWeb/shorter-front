@@ -1,6 +1,7 @@
 import {useState} from 'react'
 import type {UrlData} from '../types/url'
-import {copyToClipboard, formatDate} from '../utils/helpers'
+import {copyToClipboard} from '../utils/browser'
+import {formatDate} from '../utils/dateFormat'
 
 interface UrlListProps {
 	urls: UrlData[]

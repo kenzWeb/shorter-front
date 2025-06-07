@@ -1,7 +1,7 @@
 import {useState} from 'react'
 import type {CreateUrlRequest} from '../types/api'
 import type {UrlData} from '../types/url'
-import {isValidAlias, isValidUrl} from '../utils/helpers'
+import {isValidAlias, isValidUrl} from '../utils/validation'
 
 interface UrlFormProps {
 	onSubmit: (data: CreateUrlRequest) => Promise<UrlData>

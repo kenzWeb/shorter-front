@@ -2,7 +2,7 @@ import {useEffect, useState} from 'react'
 import {useStats} from '../hooks/useStats'
 import type {Analytics} from '../types/analytics'
 import type {DetailedStats} from '../types/stats'
-import {formatDate} from '../utils/helpers'
+import {formatDate} from '../utils/dateFormat'
 
 interface StatsModalProps {
 	shortCode: string
