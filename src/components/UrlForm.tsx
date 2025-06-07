@@ -1,6 +1,7 @@
 import {useState} from 'react'
 import type {CreateUrlRequest} from '../types/api'
 import type {UrlData} from '../types/url'
+import {hasErrors, validateForm as validateFormData} from '../utils/forms'
 import {isValidAlias, isValidUrl} from '../utils/validation'
 
 interface UrlFormProps {
@@ -15,28 +16,33 @@ export const UrlForm = ({onSubmit, loading}: UrlFormProps) => {
 	const [errors, setErrors] = useState<Record<string, string>>({})
 
 	const validateForm = (): boolean => {
-		const newErrors: Record<string, string> = {}
-
-		if (!originalUrl.trim()) {
-			newErrors.originalUrl = 'URL обязателен для заполнения'
-		} else if (!isValidUrl(originalUrl)) {
-			newErrors.originalUrl = 'Некорректный URL'
+		const formData = {originalUrl, alias, expiresAt}
+		const validators = {
+			originalUrl: (value: string) => {
+				if (!value.trim()) return 'URL обязателен для заполнения'
+				if (!isValidUrl(value)) return 'Некорректный URL'
+				return null
+			},
+			alias: (value: string) => {
+				if (value && !isValidAlias(value)) {
+					return 'Алиас может содержать только буквы, цифры, дефисы и подчеркивания (макс. 20 символов)'
+				}
+				return null
+			},
+			expiresAt: (value: string) => {
+				if (value) {
+					const expirationDate = new Date(value)
+					if (expirationDate <= new Date()) {
+						return 'Дата истечения должна быть в будущем'
+					}
+				}
+				return null
+			},
 		}
 
-		if (alias && !isValidAlias(alias)) {
-			newErrors.alias =
-				'Алиас может содержать только буквы, цифры, дефисы и подчеркивания (макс. 20 символов)'
-		}
-
-		if (expiresAt) {
-			const expirationDate = new Date(expiresAt)
-			if (expirationDate <= new Date()) {
-				newErrors.expiresAt = 'Дата истечения должна быть в будущем'
-			}
-		}
-
+		const newErrors = validateFormData(formData, validators)
 		setErrors(newErrors)
-		return Object.keys(newErrors).length === 0
+		return !hasErrors(newErrors)
 	}
 
 	const handleSubmit = async (e: React.FormEvent) => {

@@ -1,8 +1,11 @@
 import {useEffect, useState} from 'react'
+import {useKeyboardHandler, useModalBodyClass} from '../hooks/common'
 import {useStats} from '../hooks/useStats'
 import type {Analytics} from '../types/analytics'
 import type {DetailedStats} from '../types/stats'
+import {truncateUserAgent} from '../utils/analytics'
 import {formatDate} from '../utils/dateFormat'
+import {LoadingState} from './common/LoadingState'
 
 interface StatsModalProps {
 	shortCode: string
@@ -31,22 +34,8 @@ export const StatsModal = ({shortCode, onClose}: StatsModalProps) => {
 		loadStats()
 	}, [shortCode, getDetailedStats, getAnalytics])
 
-	useEffect(() => {
-		document.body.classList.add('modal-open')
-
-		const handleEscape = (e: KeyboardEvent) => {
-			if (e.key === 'Escape') {
-				onClose()
-			}
-		}
-
-		document.addEventListener('keydown', handleEscape)
-
-		return () => {
-			document.body.classList.remove('modal-open')
-			document.removeEventListener('keydown', handleEscape)
-		}
-	}, [onClose])
+	useKeyboardHandler('Escape', onClose)
+	useModalBodyClass(true)
 
 	return (
 		<div className='modal-overlay' onClick={onClose}>
@@ -73,81 +62,81 @@ export const StatsModal = ({shortCode, onClose}: StatsModalProps) => {
 					</button>
 				</div>
 
-				{loading ? (
-					<div className='loading'>Загрузка статистики...</div>
-				) : error ? (
-					<div className='error'>{error}</div>
-				) : activeTab === 'detailed' && detailedStats ? (
-					<div className='detailed-stats'>
-						<div className='stats-summary'>
-							<h3>Основная информация</h3>
-							<p>
-								<strong>URL:</strong> {detailedStats.url.originalUrl}
-							</p>
-							<p>
-								<strong>Создано:</strong>{' '}
-								{formatDate(detailedStats.url.createdAt)}
-							</p>
-							<p>
-								<strong>Всего кликов:</strong> {detailedStats.url.clickCount}
-							</p>
-						</div>
+				<LoadingState
+					loading={loading}
+					error={error}
+					loadingText='Загрузка статистики...'
+				>
+					{activeTab === 'detailed' && detailedStats ? (
+						<div className='detailed-stats'>
+							<div className='stats-summary'>
+								<h3>Основная информация</h3>
+								<p>
+									<strong>URL:</strong> {detailedStats.url.originalUrl}
+								</p>
+								<p>
+									<strong>Создано:</strong>{' '}
+									{formatDate(detailedStats.url.createdAt)}
+								</p>
+								<p>
+									<strong>Всего кликов:</strong> {detailedStats.url.clickCount}
+								</p>
+							</div>
 
-						<div className='click-history'>
-							<h3>История кликов</h3>
-							{detailedStats.statistics.length === 0 ? (
-								<p>Пока нет кликов по этой ссылке</p>
-							) : (
-								<div className='clicks-table'>
-									<div className='table-header'>
-										<span>Время</span>
-										<span>IP адрес</span>
-										<span>User Agent</span>
-									</div>
-									{detailedStats.statistics.map((stat, index) => (
-										<div key={index} className='table-row'>
-											<span>{formatDate(stat.clickedAt)}</span>
-											<span>{stat.ipAddress}</span>
-											<span title={stat.userAgent}>
-												{stat.userAgent.length > 50
-													? `${stat.userAgent.substring(0, 50)}...`
-													: stat.userAgent}
-											</span>
+							<div className='click-history'>
+								<h3>История кликов</h3>
+								{detailedStats.statistics.length === 0 ? (
+									<p>Пока нет кликов по этой ссылке</p>
+								) : (
+									<div className='clicks-table'>
+										<div className='table-header'>
+											<span>Время</span>
+											<span>IP адрес</span>
+											<span>User Agent</span>
 										</div>
-									))}
-								</div>
-							)}
+										{detailedStats.statistics.map((stat, index) => (
+											<div key={index} className='table-row'>
+												<span>{formatDate(stat.clickedAt)}</span>
+												<span>{stat.ipAddress}</span>
+												<span title={stat.userAgent}>
+													{truncateUserAgent(stat.userAgent)}
+												</span>
+											</div>
+										))}
+									</div>
+								)}
+							</div>
 						</div>
-					</div>
-				) : activeTab === 'analytics' && analytics ? (
-					<div className='analytics'>
-						<div className='analytics-summary'>
-							<h3>Аналитические данные</h3>
-							<p>
-								<strong>URL:</strong> {analytics.originalUrl}
-							</p>
-							<p>
-								<strong>Создано:</strong> {formatDate(analytics.createdAt)}
-							</p>
-							<p>
-								<strong>Всего кликов:</strong> {analytics.clickCount}
-							</p>
-						</div>
+					) : activeTab === 'analytics' && analytics ? (
+						<div className='analytics'>
+							<div className='analytics-summary'>
+								<h3>Аналитические данные</h3>
+								<p>
+									<strong>URL:</strong> {analytics.originalUrl}
+								</p>
+								<p>
+									<strong>Создано:</strong> {formatDate(analytics.createdAt)}
+								</p>
+								<p>
+									<strong>Всего кликов:</strong> {analytics.clickCount}
+								</p>
+							</div>
 
-						<div className='ip-list'>
-							<h3>Последние 5 IP адресов</h3>
-							{analytics.lastFiveIPs.length === 0 ? (
-								<p>Нет данных об IP адресах</p>
-							) : (
-								<ul>
-									{analytics.lastFiveIPs.map((ip, index) => (
-										<li key={index}>{ip}</li>
-									))}
-								</ul>
-							)}
+							<div className='ip-list'>
+								<h3>Последние 5 IP адресов</h3>
+								{analytics.lastFiveIPs.length === 0 ? (
+									<p>Нет данных об IP адресах</p>
+								) : (
+									<ul>
+										{analytics.lastFiveIPs.map((ip, index) => (
+											<li key={index}>{ip}</li>
+										))}
+									</ul>
+								)}
+							</div>
 						</div>
-					</div>
-				) : null}
+					) : null}
+				</LoadingState>
 			</div>
 		</div>
 	)
