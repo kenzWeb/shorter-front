@@ -1,8 +1,8 @@
-import React from 'react'
+import {useFormValidation} from '../hooks/useForm'
 import type {CreateUrlRequest} from '../types/api'
 import type {UrlData} from '../types/url'
-import {useFormValidation} from '../hooks/useForm'
-import {isValidAlias, isValidUrl} from '../utils/validation'
+import {useSubmitHandler} from '../utils/formHandlers'
+import {urlFormValidators} from '../utils/formValidators'
 
 interface UrlFormProps {
 	onSubmit: (data: CreateUrlRequest) => Promise<UrlData>
@@ -10,59 +10,24 @@ interface UrlFormProps {
 }
 
 export const UrlForm = ({onSubmit, loading}: UrlFormProps) => {
-	const validators = {
-		originalUrl: (value: string) => {
-			if (!value.trim()) return 'URL обязателен для заполнения'
-			if (!isValidUrl(value)) return 'Некорректный URL'
-			return null
-		},
-		alias: (value: string) => {
-			if (value && !isValidAlias(value)) {
-				return 'Алиас может содержать только буквы, цифры, дефисы и подчеркивания (макс. 20 символов)'
-			}
-			return null
-		},
-		expiresAt: (value: string) => {
-			if (value) {
-				const date = new Date(value)
-				if (date <= new Date()) {
-					return 'Дата истечения должна быть в будущем'
-				}
-			}
-			return null
-		}
-	}
+	const {values, errors, setValue, setFieldTouched, validateAll, resetForm} =
+		useFormValidation(
+			{originalUrl: '', alias: '', expiresAt: ''},
+			urlFormValidators,
+		)
 
-	const {
-		values,
-		errors,
-		setValue,
-		setFieldTouched,
+	const getFormData = () => ({
+		originalUrl: values.originalUrl,
+		alias: values.alias,
+		expiresAt: values.expiresAt,
+	})
+
+	const {handleSubmit} = useSubmitHandler(
 		validateAll,
-		resetForm
-	} = useFormValidation(
-		{ originalUrl: '', alias: '', expiresAt: '' },
-		validators
+		getFormData,
+		onSubmit,
+		resetForm,
 	)
-
-	const handleSubmit = async (e: React.FormEvent) => {
-		e.preventDefault()
-
-		if (!validateAll()) return
-
-		const data: CreateUrlRequest = {
-			originalUrl: values.originalUrl.trim(),
-			...(values.alias.trim() && {alias: values.alias.trim()}),
-			...(values.expiresAt && {expiresAt: new Date(values.expiresAt).toISOString()}),
-		}
-
-		try {
-			await onSubmit(data)
-			resetForm()
-		} catch (error) {
-			console.error('Ошибка при создании ссылки:', error)
-		}
-	}
 
 	return (
 		<form onSubmit={handleSubmit} className='url-form'>
